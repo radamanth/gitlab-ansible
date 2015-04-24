@@ -1,0 +1,81 @@
+
+# NO BUNDLE WEBSERVER
+nginx['enable'] = false
+# NO BUNDLE WEBSERVER
+ci_nginx['enable'] = false
+
+external_url '{{gitlab_external_url}}'
+
+ user['username'] = "{{gitlab_user}}"
+ user['group'] = "{{gitlab_group}}"
+
+## Note: configuration settings below are optional.
+## Uncomment and change the value.
+############################
+# gitlab.yml configuration #
+############################
+
+# gitlab_rails['gitlab_ssh_host'] = 'ssh.host_example.com'
+# gitlab_rails['time_zone'] = 'UTC'
+# gitlab_rails['gitlab_email_enabled'] = true
+gitlab_rails['gitlab_email_from'] = '{{gitlab_admin_mail}}'
+gitlab_rails['gitlab_email_display_name'] = 'Gitlab TechImmozeo'
+# gitlab_rails['gitlab_default_can_create_group'] = true
+# gitlab_rails['gitlab_username_changing_enabled'] = true
+# gitlab_rails['gitlab_default_theme'] = 2
+# gitlab_rails['gitlab_restricted_visibility_levels'] = nil # to restrict public and internal: ['public', 'internal']
+# gitlab_rails['gitlab_default_projects_features_issues'] = true
+# gitlab_rails['gitlab_default_projects_features_merge_requests'] = true
+# gitlab_rails['gitlab_default_projects_features_wiki'] = true
+# gitlab_rails['gitlab_default_projects_features_snippets'] = false
+# gitlab_rails['gitlab_default_projects_features_visibility_level'] = 'private'
+# gitlab_rails['gitlab_repository_downloads_path'] = 'tmp/repositories'
+# gitlab_rails['gravatar_plain_url'] = 'http://www.gravatar.com/avatar/%{hash}?s=%{size}&d=identicon'
+# gitlab_rails['gravatar_ssl_url'] = 'https://secure.gravatar.com/avatar/%{hash}?s=%{size}&d=identicon'
+# gitlab_rails['webhook_timeout'] = 10
+
+
+## For setting up different data storing directory
+## see https://gitlab.com/gitlab-org/omnibus-gitlab/blob/629def0a7a26e7c2326566f0758d4a27857b52a3/README.md#storing-git-data-in-an-alternative-directory
+## If you want to use a single non-default directory to store git data use:
+git_data_dir '{{ gitlab_git_data_dir }}'
+
+# Change the initial default admin password.
+# Only applicable on inital setup, changing this setting after database is created and seeded
+# won't yield any change.
+gitlab_rails['initial_root_password'] = '{{gitlab_init_root_passwd}}'
+
+
+##################
+# GitLab Unicorn #
+##################
+## Tweak unicorn settings.
+
+# unicorn['worker_timeout'] = 60
+# unicorn['worker_processes'] = 2
+
+## Advanced settings
+unicorn['listen'] = '127.0.0.1'
+unicorn['port'] = {{gitlab_port}}
+# unicorn['socket'] = '/var/opt/gitlab/gitlab-rails/sockets/gitlab.socket'
+unicorn['pidfile'] = '{{gitlab_pidfile}}'
+# unicorn['tcp_nopush'] = true
+# unicorn['backlog_socket'] = 1024
+# We do not recommend changing this setting
+# unicorn['log_directory'] = "/var/log/gitlab/unicorn"
+
+
+
+#####################
+# GitLab Web server #
+#####################
+## see: https://gitlab.com/gitlab-org/omnibus-gitlab/tree/629def0a7a26e7c2326566f0758d4a27857b52a3/doc/settings/nginx.md#using-a-non-bundled-web-server
+## When bundled nginx is disabled we need to add the external webserver user to the GitLab webserver group.
+
+ web_server['external_users'] = ['{{gitlab_external_user}}']
+ web_server['username'] = 'gitlab-www'
+ web_server['group'] = 'gitlab-www'
+ web_server['uid'] = nil
+ web_server['gid'] = nil
+
+

@@ -1,0 +1,75 @@
+---
+# this ensure that sendmail will be able to send you things.  The hostname should be qualified 
+- name: edit etc host to add gitlab_domain
+  replace:  dest=/etc/hosts  regexp='^127\.0\.0\.1 {{ansible_hostname}} localhost$' replace="127.0.0.1 {{gitlab_domain}} {{ansible_hostname}} localhost"
+  
+- name: Check if GitLab configuration file already exists.
+  stat: path=/etc/gitlab/gitlab.rb
+  register: gitlab_config_file
+
+- name: Install GitLab dependencies 
+  apt: pkg={{ item }} state=installed
+  with_items:
+    - openssh-server
+    - postfix
+    - git
+    - sendmail
+
+- name: Ensure required directory exists 
+  file: path={{item}}  state=directory owner={{gitlab_user}} group={{gitlab_group}} 
+  with_items:
+  - "{{gitlab_public_dir}}"
+  - "/var/log/gitlab"
+
+- name: Check if GitLab is already installed.
+  stat: path=/usr/bin/gitlab-ctl
+  register: gitlab_file
+
+- name: Download GitLab .deb package .
+  get_url: url={{ gitlab_package_url }}  dest=/tmp/gitlab.deb
+  when: (gitlab_file.stat.exists == false) 
+
+- name: Install GitLab .deb package.
+  command: sudo dpkg -i /tmp/gitlab.deb
+  when: (gitlab_file.stat.exists == false)
+
+- name: Create GitLab SSL configuration folder.
+  file: path=/etc/gitlab/ssl state=directory  owner=root group=root mode=700
+  when: gitlab_create_self_signed_cert
+
+# 10 years self signed certificate shall cover our needs
+- name: Create self-signed certificate.
+  command: openssl req -new -nodes -x509 -subj "{{ gitlab_self_signed_cert_subj }}" -days 3650 -keyout {{ gitlab_ssl_certificate_key }} -out {{ gitlab_ssl_certificate }} -extensions v3_ca
+    creates={{ gitlab_ssl_certificate }}
+  when: gitlab_create_self_signed_cert
+
+- name: Copy GitLab configuration file.
+  template: src=gitlab.rb.j2   dest=/etc/gitlab/gitlab.rb  owner=root group=root mode=600
+  notify: restart gitlab
+
+- name: Ensure git user {{gitlab_use}} is in the group ({{gitlab_group}})
+  user: name={{gitlab_user}} groups={{gitlab_group}} 
+
+- name: Enable security.conf
+  command: a2enconf security
+
+- name: Enable mod for apache2
+  command: a2enmod {{item}}
+  with_items:
+  - rewrite
+  - proxy
+  - proxy_http
+  - ssl
+  - headers 
+
+- name: Template VHOST 
+  template: src=gitlab.immozeo.conf.j2 dest=/etc/apache2/sites-available/gitlab.immozeo.conf
+  remote_user: root
+
+- name: Enable integraiton VHOST
+  command: a2ensite gitlab.immozeo.conf
+  remote_user: root
+  notify: restart apache2
+
+
+ 

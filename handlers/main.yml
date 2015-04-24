@@ -1,0 +1,8 @@
+---
+- name: restart gitlab
+  command: gitlab-ctl reconfigure
+  failed_when: false
+
+- name: restart apache2
+  service: name=apache2 state=restarted
+
