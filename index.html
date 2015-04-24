@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="Gitlab-ansible : Ansible role for gitlab CE and git installation">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Gitlab-ansible</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/radamanth/gitlab-ansible">View on GitHub</a>
+
+          <h1 id="project_title">Gitlab-ansible</h1>
+          <h2 id="project_tagline">Ansible role for gitlab CE and git installation</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/radamanth/gitlab-ansible/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/radamanth/gitlab-ansible/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>
+<a id="gitlab-ansible" class="anchor" href="#gitlab-ansible" aria-hidden="true"><span class="octicon octicon-link"></span></a>gitlab-ansible</h1>
+
+<p>Small Ansible role  for provisionning Gitlab behind an Apache2 </p>
+
+<h2>
+<a id="requirements" class="anchor" href="#requirements" aria-hidden="true"><span class="octicon octicon-link"></span></a>Requirements</h2>
+
+<p>You should have a {{gitlab_user}} present, with a home  on your target host </p>
+
+<h2>
+<a id="role-variables" class="anchor" href="#role-variables" aria-hidden="true"><span class="octicon octicon-link"></span></a>Role Variables</h2>
+
+<p>{{gitlab_domain}} I use to set it in my inventory file as a host var.</p>
+
+<h2>
+<a id="dependencies" class="anchor" href="#dependencies" aria-hidden="true"><span class="octicon octicon-link"></span></a>Dependencies</h2>
+
+<p>No other role dependecy</p>
+
+<h2>
+<a id="example-playbook" class="anchor" href="#example-playbook" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example Playbook</h2>
+
+<pre><code>- hosts: gitlab_servers
+  roles:
+     - { role: radamanth.gitlab-ansible, x: 42 }
+</code></pre>
+
+<h2>
+<a id="license" class="anchor" href="#license" aria-hidden="true"><span class="octicon octicon-link"></span></a>License</h2>
+
+<p>GPL V2</p>
+
+<h2>
+<a id="author-information" class="anchor" href="#author-information" aria-hidden="true"><span class="octicon octicon-link"></span></a>Author Information</h2>
+
+<p>I've been a computer science engineer for more than 10 years now, I've discovered Ansible in 2014, and fell in love with it.
+I use it in my company to manage different server since then. 
+Feel free to visit our site <a href="http://www.neovia.fr">www.neovia.fr</a> </p>
+
+<p>I'm also one of the founder of Immozeo, where Ansible is also greatly used.</p>
+
+<p><a href="http://www.immozeo.com">www.immozeo.com</a></p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Gitlab-ansible maintained by <a href="https://github.com/radamanth">radamanth</a></p>
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-62256287-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+
+  </body>
+</html>
