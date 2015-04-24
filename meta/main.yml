@@ -1,3 +1,16 @@
 ---
-dependencies:
-  - { role: common, sudo: yes }
+galaxy_info:
+  author: Tony Debosch√re 
+  description: Neoviste since 2006 and tech lover
+  company: www.neovia.fr
+  license: GPLv2
+  min_ansible_version: 1.4
+  platforms:
+  - name: Ubuntu
+    versions:
+    - trusty
+  categories:
+  - development
+  - web
+dependencies: []
+  
