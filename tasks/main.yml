@@ -59,15 +59,15 @@
   - rewrite
   - proxy
   - proxy_http
-  - ssl
+  - ssli
   - headers 
 
 - name: Template VHOST 
-  template: src=gitlab.immozeo.conf.j2 dest=/etc/apache2/sites-available/gitlab.immozeo.conf
+  template: src=gitlab.conf.j2 dest=/etc/apache2/sites-available/gitlab.conf
   remote_user: root
 
 - name: Enable integraiton VHOST
-  command: a2ensite gitlab.immozeo.conf
+  command: a2ensite gitlab.conf
   remote_user: root
   notify: restart apache2
 
