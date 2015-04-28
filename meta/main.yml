@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Tony Deboschère 
-  description: Neoviste since 2006 and tech lover
+  description: Small ansible role designed to install gitlab on an ubuntu server behind an apache2 reverse proxy
   company: www.neovia.fr
   license: GPLv2
   min_ansible_version: 1.4
