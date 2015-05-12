@@ -1,18 +1,24 @@
 ---
 # this ensure that sendmail will be able to send you things.  The hostname should be qualified 
 - name: edit etc host to add gitlab_domain
-  replace:  dest=/etc/hosts  regexp='^127\.0\.0\.1 {{ansible_hostname}} localhost$' replace="127.0.0.1 {{gitlab_domain}} {{ansible_hostname}} localhost"
+  replace: dest=/etc/hosts regexp='^127\.0\.0\.1.localhost$' replace='127.0.0.1 sendmail.{{gitlab_domain}} {{ansible_hostname}} localhost' owner=root group=root mode=0644 
   
+
 - name: Check if GitLab configuration file already exists.
   stat: path=/etc/gitlab/gitlab.rb
   register: gitlab_config_file
 
 - name: Install GitLab dependencies 
-  apt: pkg={{ item }} state=installed
+  apt: pkg={{ item }} state=installed update_cache=yes
   with_items:
     - openssh-server
     - postfix
     - git
+    - jq
+
+- name: Install Sendmail for GitLab 
+  apt: pkg={{ item }} state=installed update_cache=yes force=yes
+  with_items:
     - sendmail
 
 - name: Ensure required directory exists 
@@ -50,6 +56,62 @@
 - name: Ensure git user {{gitlab_use}} is in the group ({{gitlab_group}})
   user: name={{gitlab_user}} groups={{gitlab_group}} 
 
+
+# Add users, groups and projects
+- name: Start Gitlab 
+  command: gitlab-ctl reconfigure
+
+- name : Retrieve root private token 
+  shell : curl  http://localhost:{{gitlab_port}}/api/v3/session --data-urlencode 'login=root' --data-urlencode 'password={{gitlab_init_root_passwd}}' | jq --raw-output .private_token > ~/root_private_token 
+
+- name: Assign private token  to a variable
+  shell:
+    cat ~/root_private_token 
+  register: gitlab_root_private_token
+
+- name: create groups
+  uri:  url="http://localhost:{{gitlab_port}}/api/v3/groups"  
+        method=POST  
+        HEADER_PRIVATE-TOKEN="{{gitlab_root_private_token.stdout}}" 
+        status_code=201
+        return_content=yes
+        body="{{lookup('file', item )}}"
+  ignore_errors: true 
+  register: created_groups
+  with_fileglob:
+  - "{{gitlab_groups}}"
+  
+- debug: var=created_groups
+  
+- name: create projects
+  uri:  url="http://localhost:{{gitlab_port}}/api/v3/projects"  
+        method=POST  
+        HEADER_PRIVATE-TOKEN="{{gitlab_root_private_token.stdout}}" 
+        status_code=201
+        return_content=yes
+        body="{{lookup('file', item )}}"
+  ignore_errors: true 
+  register: created_projects
+  with_fileglob:
+  - "{{gitlab_projects}}"
+  
+- debug: var=created_projects
+
+- name: create users
+  uri:  url="http://localhost:{{gitlab_port}}/api/v3/users"  
+        method=POST  
+        HEADER_PRIVATE-TOKEN="{{gitlab_root_private_token.stdout}}" 
+        status_code=201
+        return_content=yes
+        body="{{lookup('file', item )}}"
+  ignore_errors: true 
+  register: created_users
+  with_fileglob:
+  - "{{gitlab_users}}"
+  
+- debug: var=created_users
+
+# APACHE2 configuration 
 - name: Enable security.conf
   command: a2enconf security
 
@@ -66,7 +128,7 @@
   template: src=gitlab.conf.j2 dest=/etc/apache2/sites-available/gitlab.conf
   remote_user: root
 
-- name: Enable integraiton VHOST
+- name: Enable  VHOST
   command: a2ensite gitlab.conf
   remote_user: root
   notify: restart apache2

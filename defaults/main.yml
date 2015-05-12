@@ -39,4 +39,24 @@ gitlab_pidfile: "/opt/gitlab/var/unicorn/unicorn.pid"
 gitlab_external_user: "www-data"
 
 
+# Gitlab groups to create see http://doc.gitlab.com/ce/api/groups.html for optional fields
+# every txt file  in the groups dir  should be a group formatted like this : name=FoobarGroup&path=foo-bar&description=This%20a%20Project
+gitlab_groups: "groups/*.txt"
+
+    
+# list of users to create see http://doc.gitlab.com/ce/api/users.html for optinal fields
+# email (required) - Email
+# password (required) - Password
+# username (required) - Username
+# name (required) - Name
+# every txt file  in the users  dir should be a user formatted like this : username=bob&email=bob@whatever.com&password=password&name=Bob
+gitlab_users: "users/*.txt" 
+
+# List of gitlabt project to initialize, see http://doc.gitlab.com/ce/api/projects.html for optional fields 
+# every txt file  in the projects dir should be a project formatted like this : name=foo
+gitlab_projects: "projects/*.txt" 
+  
+
+
+
 
