@@ -59,7 +59,7 @@
   - rewrite
   - proxy
   - proxy_http
-  - ssli
+  - ssl
   - headers 
 
 - name: Template VHOST 
