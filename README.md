@@ -3,6 +3,8 @@ gitlab-ansible
 
 Small Ansible role  for provisionning Gitlab behind an Apache2 
 
+It will also initialize some users groups and projects if you want it to.
+
 Requirements
 ------------
 
@@ -16,6 +18,8 @@ Role Variables
 Defaults vars : 
 
 ```YAML
+---
+
 # User use by gitlab. See template configruation file. This user must exist in your system.
 gitlab_user: "gitlab"
 
@@ -54,31 +58,21 @@ gitlab_pidfile: "/opt/gitlab/var/unicorn/unicorn.pid"
 # To let apache2 do things with gitlab
 gitlab_external_user: "www-data"
 
+
 # Gitlab groups to create see http://doc.gitlab.com/ce/api/groups.html for optional fields
+# every txt file  in the groups dir  should be a group formatted like this : name=FoobarGroup&path=foo-bar&description=This%20a%20Project
 gitlab_groups: 
-  - { "name": "Foobar Group",
-    "path": "foo-bar",
-    "description": "This is an awesome description" }
-    
-# list of users to create see http://doc.gitlab.com/ce/api/users.html for optinal fields
-# email (required) - Email
-# password (required) - Password
-# username (required) - Username
-# name (required) - Name
-gitlab_users:
-  - { "username": "john_smith",
-  "email": "john@example.com",
-  "password": "secret1",
-  "name": "John Smith" }
-  - { "username": "bob_flanagan",
-  "email": "bob@example.com",
-  "password": "secret2",
-  "name": "Bob Flanagan"}
+  - { name: 'Group1', path: 'group1', description: 'Group N°1' }
+ 
 
 # List of gitlabt project to initialize, see http://doc.gitlab.com/ce/api/projects.html for optional fields 
 gitlab_projects: 
-  - { "name": "foo" }
-
+  - {name: 'project1'}
+  
+# list of users to create see http://doc.gitlab.com/ce/api/users.html for optinal fields
+gitlab_users: 
+  - {username: 'user1', email: 'user1@user1.com', password: 'UnBreakablePassword', name: 'As your mom call you'}
+  
 ```
 
 Dependencies
@@ -92,7 +86,7 @@ Example Playbook
 
     - hosts: gitlab_servers
       roles:
-         - { role: radamanth.gitlab-ansible, x: 42 }
+         - { role: radamanth.gitlab-ansible}
 
 License
 -------

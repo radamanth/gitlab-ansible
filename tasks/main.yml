@@ -58,7 +58,8 @@
 
 
 # Add users, groups and projects
-- name: Start Gitlab 
+
+- name: Ensure  Gitlab  is started
   command: gitlab-ctl reconfigure
 
 - name : Retrieve root private token 
@@ -69,44 +70,101 @@
     cat ~/root_private_token 
   register: gitlab_root_private_token
 
+# GITLAB GROUPS 
+- name: Get existing Groups in gitlab instance
+  uri:  url="http://localhost:{{gitlab_port}}/api/v3/groups"
+        method=GET
+        HEADER_PRIVATE-TOKEN="{{gitlab_root_private_token.stdout}}"
+        HEADER_Content-Type="application/json"
+        status_code=200
+        return_content=yes
+  ignore_errors: true
+  register: gitlab_api_groups_result
+
+- name: set Existing group path list
+  set_fact: 
+    gitlab_existing_group_path={{gitlab_api_groups_result.json|map(attribute='path')|list|unique}}
+      
 - name: create groups
   uri:  url="http://localhost:{{gitlab_port}}/api/v3/groups"  
         method=POST  
         HEADER_PRIVATE-TOKEN="{{gitlab_root_private_token.stdout}}" 
         status_code=201
         return_content=yes
-        body="{{lookup('file', item )}}"
+        body="{{item |  urlencode }}"
   ignore_errors: true 
   register: created_groups
-  with_fileglob:
+  when:  item.path not in gitlab_existing_group_path 
+  with_items:
   - "{{gitlab_groups}}"
   
 - debug: var=created_groups
+
+- name: ReGet existing Groups in gitlab instance
+  uri:  url="http://localhost:{{gitlab_port}}/api/v3/groups"
+        method=GET
+        HEADER_PRIVATE-TOKEN="{{gitlab_root_private_token.stdout}}"
+        HEADER_Content-Type="application/json"
+        status_code=200
+        return_content=yes
+  ignore_errors: true
+  register: gitlab_api_groups_result
   
+- name: set Existing group path list
+  set_fact: 
+    gitlab_existing_group_path={{gitlab_api_groups_result.json|map(attribute='path')|list|unique}}
+
+# GITLAB PROJECTS 
+- name: Get existing Projects  in gitlab instance
+  uri:  url="http://localhost:{{gitlab_port}}/api/v3/projects"
+        method=GET
+        HEADER_PRIVATE-TOKEN="{{gitlab_root_private_token.stdout}}"
+        HEADER_Content-Type="application/json"
+        status_code=200
+        return_content=yes
+  ignore_errors: true
+  register: gitlab_api_projects_result
+
+- name: set Existing projects name list
+  set_fact: 
+    gitlab_existing_projects_name={{gitlab_api_projects_result.json|map(attribute='name')|list|unique}}
+
 - name: create projects
   uri:  url="http://localhost:{{gitlab_port}}/api/v3/projects"  
         method=POST  
         HEADER_PRIVATE-TOKEN="{{gitlab_root_private_token.stdout}}" 
         status_code=201
         return_content=yes
-        body="{{lookup('file', item )}}"
+        body="{{item |  urlencode }}"
   ignore_errors: true 
   register: created_projects
-  with_fileglob:
+  when: item.name not in gitlab_existing_projects_name 
+  with_items:
   - "{{gitlab_projects}}"
   
 - debug: var=created_projects
 
+- name: ReGet existing Projects  in gitlab instance
+  uri:  url="http://localhost:{{gitlab_port}}/api/v3/projects"
+        method=GET
+        HEADER_PRIVATE-TOKEN="{{gitlab_root_private_token.stdout}}"
+        HEADER_Content-Type="application/json"
+        status_code=200
+        return_content=yes
+  ignore_errors: true
+  register: gitlab_api_projects_result
+
+## GITLAB USERS 
 - name: create users
   uri:  url="http://localhost:{{gitlab_port}}/api/v3/users"  
         method=POST  
         HEADER_PRIVATE-TOKEN="{{gitlab_root_private_token.stdout}}" 
         status_code=201
         return_content=yes
-        body="{{lookup('file', item )}}"
+        body="{{item |  urlencode }}"
   ignore_errors: true 
   register: created_users
-  with_fileglob:
+  with_items:
   - "{{gitlab_users}}"
   
 - debug: var=created_users
