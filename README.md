@@ -5,6 +5,21 @@ Small Ansible role  for provisionning Gitlab behind an Apache2
 
 It will also initialize some users groups and projects if you want it to.
 
+Some fact will be then available for further uses : 
+* gitlab_api_groups_result.json
+  * list of the existing groups
+* gitlab_existing_group_path
+  * set of the existing groups path (unique) 
+* gitlab_api_projects_result.json
+  * list of the existing projects in gitlab
+* gitlab_existing_projects_name
+  * set of the existing prjects names (unique) 
+* gitlab_api_users_result.json
+  * list of the existing users in gitlab
+* gitlab_existing_users_name
+  * set of the existing username (unique)
+
+
 Requirements
 ------------
 

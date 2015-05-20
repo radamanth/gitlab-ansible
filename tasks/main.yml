@@ -78,12 +78,13 @@
         HEADER_Content-Type="application/json"
         status_code=200
         return_content=yes
-  ignore_errors: true
   register: gitlab_api_groups_result
 
 - name: set Existing group path list
   set_fact: 
-    gitlab_existing_group_path={{gitlab_api_groups_result.json|map(attribute='path')|list|unique}}
+    gitlab_existing_group_path="{{gitlab_api_groups_result.json|map(attribute='path')|list|unique}}"
+
+# - debug: var=gitlab_existing_group_path
       
 - name: create groups
   uri:  url="http://localhost:{{gitlab_port}}/api/v3/groups"  
@@ -92,13 +93,12 @@
         status_code=201
         return_content=yes
         body="{{item |  urlencode }}"
-  ignore_errors: true 
   register: created_groups
   when:  item.path not in gitlab_existing_group_path 
   with_items:
   - "{{gitlab_groups}}"
   
-- debug: var=created_groups
+# - debug: var=created_groups
 
 - name: ReGet existing Groups in gitlab instance
   uri:  url="http://localhost:{{gitlab_port}}/api/v3/groups"
@@ -107,12 +107,14 @@
         HEADER_Content-Type="application/json"
         status_code=200
         return_content=yes
-  ignore_errors: true
   register: gitlab_api_groups_result
   
 - name: set Existing group path list
   set_fact: 
-    gitlab_existing_group_path={{gitlab_api_groups_result.json|map(attribute='path')|list|unique}}
+    gitlab_existing_group_path="{{gitlab_api_groups_result.json|map(attribute='path')|list|unique}}"
+
+# - debug: var=gitlab_existing_group_path
+
 
 # GITLAB PROJECTS 
 - name: Get existing Projects  in gitlab instance
@@ -122,12 +124,15 @@
         HEADER_Content-Type="application/json"
         status_code=200
         return_content=yes
-  ignore_errors: true
   register: gitlab_api_projects_result
+
+# - debug: var=gitlab_api_projects_result.json
 
 - name: set Existing projects name list
   set_fact: 
-    gitlab_existing_projects_name={{gitlab_api_projects_result.json|map(attribute='name')|list|unique}}
+    gitlab_existing_projects_name="{{gitlab_api_projects_result.json|map(attribute='name')|list|unique}}"
+
+# - debug: var=gitlab_existing_projects_name
 
 - name: create projects
   uri:  url="http://localhost:{{gitlab_port}}/api/v3/projects"  
@@ -136,13 +141,12 @@
         status_code=201
         return_content=yes
         body="{{item |  urlencode }}"
-  ignore_errors: true 
   register: created_projects
   when: item.name not in gitlab_existing_projects_name 
   with_items:
   - "{{gitlab_projects}}"
   
-- debug: var=created_projects
+# - debug: var=created_projects
 
 - name: ReGet existing Projects  in gitlab instance
   uri:  url="http://localhost:{{gitlab_port}}/api/v3/projects"
@@ -151,10 +155,32 @@
         HEADER_Content-Type="application/json"
         status_code=200
         return_content=yes
-  ignore_errors: true
   register: gitlab_api_projects_result
 
-## GITLAB USERS 
+- name: set Existing projects name list
+  set_fact: 
+    gitlab_existing_projects_name="{{gitlab_api_projects_result.json|map(attribute='name')|list|unique}}"
+
+# - debug: var=gitlab_existing_projects_name
+
+# GITLAB USERS 
+- name: Get existing Projects  in gitlab instance
+  uri:  url="http://localhost:{{gitlab_port}}/api/v3/users"
+        method=GET
+        HEADER_PRIVATE-TOKEN="{{gitlab_root_private_token.stdout}}"
+        HEADER_Content-Type="application/json"
+        status_code=200
+        return_content=yes
+  register: gitlab_api_users_result
+
+# - debug: var=gitlab_api_users_result.json
+
+- name: set Existing username list
+  set_fact: 
+    gitlab_existing_users_name="{{gitlab_api_users_result.json|map(attribute='username')|list|unique}}"
+
+# - debug: var=gitlab_existing_users_name
+
 - name: create users
   uri:  url="http://localhost:{{gitlab_port}}/api/v3/users"  
         method=POST  
@@ -162,12 +188,27 @@
         status_code=201
         return_content=yes
         body="{{item |  urlencode }}"
-  ignore_errors: true 
   register: created_users
+  when: item.username not in gitlab_existing_users_name
   with_items:
   - "{{gitlab_users}}"
   
-- debug: var=created_users
+- name: ReGet existing Projects  in gitlab instance
+  uri:  url="http://localhost:{{gitlab_port}}/api/v3/users"
+        method=GET
+        HEADER_PRIVATE-TOKEN="{{gitlab_root_private_token.stdout}}"
+        HEADER_Content-Type="application/json"
+        status_code=200
+        return_content=yes
+  register: gitlab_api_users_result
+
+# - debug: var=gitlab_api_users_result.json
+
+- name: set Existing username list
+  set_fact: 
+    gitlab_existing_users_name="{{gitlab_api_users_result.json|map(attribute='username')|list|unique}}"
+
+# - debug: var=gitlab_existing_users_name
 
 # APACHE2 configuration 
 - name: Enable security.conf
