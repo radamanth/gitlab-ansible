@@ -22,12 +22,16 @@ gitlab_git_data_dir: "/home/{{gitlab_user}}/gitlab"
 gitlab_public_dir: "{{ gitlab_git_data_dir }}/public"
 
 # SSL Configuration.
-gitlab_ssl_certificate: "/etc/gitlab/ssl/gitlab.crt"
-gitlab_ssl_certificate_key: "/etc/gitlab/ssl/gitlab.key"
+gitlab_ssl_path: "/etc/gitlab/ssl"
+gitlab_ssl_certificate: "{{gitlab_ssl_path}}/gitlab.crt"
+gitlab_ssl_certificate_key: "{{gitlab_ssl_path}}/gitlab.key"
+gitlab_ssl_chain_path:  "{{gitlab_ssl_path}}/gitlab.chain"
 
 # SSL Self-signed Certificate Configuration.
 gitlab_create_self_signed_cert: true
 gitlab_self_signed_cert_subj: "/C=FR/ST=France/L=Toulouse/O=IT/CN={{gitlab_domain}}"
+
+
 
 # Feel free to modify
 gitlab_init_root_passwd: "ThisShouldBeYourLittleSecretPassword"

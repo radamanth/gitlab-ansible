@@ -29,7 +29,9 @@
   SSLCompression Off
   SSLCertificateFile {{gitlab_ssl_certificate}}
   SSLCertificateKeyFile {{gitlab_ssl_certificate_key}}
- # SSLCACertificateFile /etc/httpd/ssl.crt/your-ca.crt
+  {% if not gitlab_create_self_signed_cert  %}
+  SSLCACertificateFile {{gitlab_ssl_certificate_key}}
+  {% endif %}
 
   ServerName {{gitlab_domain}}
   ServerSignature Off
